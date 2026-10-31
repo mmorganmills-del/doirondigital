@@ -6,7 +6,9 @@
   /* ---------- Photo booth ---------- */
   var booth = document.getElementById('booth');
   if (booth) {
-    var cam = booth.querySelector('.cam');
+    var cam = booth.querySelector('.cam');   // the camera art (decorative, not focusable)
+    var hit = booth.querySelector('.snap');  // the one trigger: an invisible button over camera + label
+    var cue = document.getElementById('cue');
     var again = booth.querySelector('.again');
     var live = document.getElementById('live');
     var flash = booth.querySelector('.flash');
@@ -19,8 +21,24 @@
 
     // touch devices: show "tap to snap" (also flips on the first touch, for hybrid laptops/tablets)
     if (window.matchMedia('(hover: none)').matches) booth.classList.add('is-touch');
-    booth.addEventListener('pointerdown', function (e) { booth.classList.toggle('is-touch', e.pointerType !== 'mouse'); });
+    booth.addEventListener('pointerdown', function (e) {
+      var t = e.pointerType !== 'mouse';
+      if (t !== booth.classList.contains('is-touch')) { booth.classList.toggle('is-touch', t); fitHit(); } // label text changes
+    });
     booth.dataset.state = 'idle'; // HTML ships in "done" so the no-JS view shows the developed print
+
+    // size the invisible trigger to the union of the camera box and the label box (idle label text),
+    // so a tap anywhere on either (or in the small gap between them) fires; never wider than that
+    function fitHit() {
+      if (counting) return; // the label text shortens to "hold still…" mid-countdown; keep the idle box
+      var b = booth.getBoundingClientRect(), c = cam.getBoundingClientRect(), u = cue.getBoundingClientRect();
+      var l = Math.min(c.left, u.left), t = Math.min(c.top, u.top), r = Math.max(c.right, u.right), btm = Math.max(c.bottom, u.bottom);
+      hit.style.left = (l - b.left) + 'px'; hit.style.top = (t - b.top) + 'px';
+      hit.style.width = (r - l) + 'px'; hit.style.height = (btm - t) + 'px'; hit.style.bottom = 'auto';
+    }
+    fitHit();
+    if (window.ResizeObserver) new ResizeObserver(fitHit).observe(booth); else window.addEventListener('resize', fitHit);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitHit);
 
     function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
 
@@ -114,31 +132,30 @@
       easeBack(); // ring eases back to full size, no snap
     }
 
-    cam.addEventListener('pointerdown', function (e) { lastPtr = e.pointerType || 'mouse'; });
-    cam.addEventListener('pointerenter', function (e) {
+    // One activation path only: the native <button>'s click. A tap, a mouse click, Enter and Space each
+    // produce exactly one click (no touchend/pointerup handlers, so no touch+click double fire).
+    hit.addEventListener('pointerdown', function (e) { lastPtr = e.pointerType || 'mouse'; });
+    hit.addEventListener('pointerenter', function (e) {
       if (e.pointerType === 'mouse') startCountdown('hover');
     });
-    cam.addEventListener('pointerleave', function (e) {
+    hit.addEventListener('pointerleave', function (e) {
       if (e.pointerType === 'mouse' && (cdSource === 'hover' || cdSource === 'click')) cancelCountdown();
     });
-    // tap, mouse click, Enter and Space all fire click on the native <button>
-    cam.addEventListener('click', function (e) {
+    hit.addEventListener('click', function (e) {
       var src = e.detail === 0 ? 'key' : (lastPtr === 'mouse' ? 'click' : 'tap');
-      if (counting) {
-        if (cdSource === 'hover' && src === 'click') return; // clicking while the hover countdown runs just lets it finish
-        cancelCountdown(); // second tap / second key press cancels
-        return;
-      }
+      // mid-countdown or mid-snap: extra taps/clicks/keys inside the area are ignored (no re-trigger, no accidental cancel)
       startCountdown(src);
     });
-    // a tap or click anywhere else cancels; so does moving keyboard focus away
+    // cancel (ring eases back, no snap): a tap or click outside the area, the mouse leaving it (above),
+    // Escape, or keyboard focus moving away from a keyboard-started countdown
     document.addEventListener('pointerdown', function (e) {
-      if (counting && !cam.contains(e.target)) cancelCountdown();
+      if (counting && !hit.contains(e.target)) cancelCountdown();
     });
-    cam.addEventListener('blur', function () { if (counting && cdSource === 'key') cancelCountdown(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && counting) cancelCountdown(); });
+    hit.addEventListener('blur', function () { if (counting && cdSource === 'key') cancelCountdown(); });
     again.addEventListener('click', function (e) {
       last = -Infinity;
-      if (e.detail === 0) cam.focus(); // keyboard activation: return focus to the camera
+      if (e.detail === 0) hit.focus(); // keyboard activation: return focus to the trigger
       startCountdown(e.detail === 0 ? 'key' : 'tap');
     });
   }

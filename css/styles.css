@@ -133,12 +133,16 @@ body.menu-open{overflow:hidden}
 .vf__blade{position:absolute;left:0;right:0;height:50%;background:var(--dd-espresso-900);z-index:3;transition:transform 160ms cubic-bezier(0,0,.2,1)}
 .vf__blade--t{top:0;transform:translateY(-101%)}.vf__blade--b{bottom:0;transform:translateY(101%)}
 .booth[data-state=shutter] .vf__blade{transform:none;transition:transform 120ms cubic-bezier(.4,0,1,1)}
-.cam{position:absolute;left:0;bottom:4%;width:40%;background:none;border:0;padding:0;cursor:pointer;border-radius:28px;z-index:4;color:inherit;-webkit-tap-highlight-color:transparent}
+.cam{position:absolute;left:0;bottom:4%;width:40%;border-radius:28px;z-index:4;color:inherit;pointer-events:none}
 .cam svg{width:100%;height:auto;overflow:visible}
 .cam #dd-ring{filter:drop-shadow(0 0 6px rgb(245 238 232 / .8)) drop-shadow(0 0 18px rgb(174 137 121 / .9));animation:breathe 2.8s ease-in-out infinite;transform-origin:180px 190px;transform-box:view-box}
 @keyframes breathe{50%{transform:scale(1.03);filter:drop-shadow(0 0 10px rgb(245 238 232 / 1)) drop-shadow(0 0 30px rgb(174 137 121 / 1))}}
-.cam:hover #dd-ring,.cam:focus-visible #dd-ring{filter:drop-shadow(0 0 12px var(--dd-cream-50)) drop-shadow(0 0 36px var(--dd-rust-300));transition:filter 150ms}
-.cam:focus-visible{outline:3px solid var(--dd-cream);outline-offset:6px;border-radius:28px}
+.snap:hover~.cam #dd-ring,.snap:focus-visible~.cam #dd-ring{filter:drop-shadow(0 0 12px var(--dd-cream-50)) drop-shadow(0 0 36px var(--dd-rust-300));transition:filter 150ms}
+/* invisible trigger: one transparent, square-cornered (so the corners count) button over the camera + "tap to snap" label (box set by JS to the union of the two;
+   the fallback below roughly matches the desktop layout). Sits under the print (z 6) and "snap another?" (z 7). */
+.snap{position:absolute;left:0;top:35%;width:46%;bottom:-6%;z-index:5;margin:0;padding:0;border:0;background:transparent;color:inherit;font:inherit;
+  -webkit-appearance:none;appearance:none;cursor:pointer;border-radius:4px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+.snap:focus-visible{outline:3px solid var(--dd-cream);outline-offset:6px;border-radius:4px}
 .cue{position:absolute;left:4%;bottom:-6%;display:flex;align-items:center;gap:10px;color:var(--dd-cream);background:rgb(89 78 73 / .7);border:1px solid rgb(235 221 209 / .18);padding:6px 16px 8px;border-radius:999px;z-index:5;pointer-events:none}
 .cue .dot{animation:pulse 1.6s ease-in-out infinite}
 @keyframes pulse{50%{box-shadow:0 0 0 8px rgb(174 137 121 / 0)}}
