@@ -130,15 +130,17 @@ body.menu-open{overflow:hidden}
 .cam svg{width:100%;height:auto;overflow:visible}
 .cam #dd-ring{filter:drop-shadow(0 0 6px rgb(245 238 232 / .8)) drop-shadow(0 0 18px rgb(174 137 121 / .9));animation:breathe 2.8s ease-in-out infinite;transform-origin:180px 190px;transform-box:view-box}
 @keyframes breathe{50%{transform:scale(1.03);filter:drop-shadow(0 0 10px rgb(245 238 232 / 1)) drop-shadow(0 0 30px rgb(174 137 121 / 1))}}
-.cam:hover #dd-ring,.cam:focus-visible #dd-ring,.booth[data-state=armed] #dd-ring{filter:drop-shadow(0 0 12px var(--dd-cream-50)) drop-shadow(0 0 36px var(--dd-rust-300));transition:filter 150ms}
+.cam:hover #dd-ring,.cam:focus-visible #dd-ring{filter:drop-shadow(0 0 12px var(--dd-cream-50)) drop-shadow(0 0 36px var(--dd-rust-300));transition:filter 150ms}
 .cam:focus-visible{outline:3px solid var(--dd-cream);outline-offset:6px;border-radius:28px}
 .cue{position:absolute;left:4%;bottom:-6%;display:flex;align-items:center;gap:10px;color:var(--dd-cream);background:rgb(89 78 73 / .7);border:1px solid rgb(235 221 209 / .18);padding:6px 16px 8px;border-radius:999px;z-index:5;pointer-events:none}
 .cue .dot{animation:pulse 1.6s ease-in-out infinite}
 @keyframes pulse{50%{box-shadow:0 0 0 8px rgb(174 137 121 / 0)}}
 .cue .t-touch,.cue .t-arm{display:none}
-.booth[data-state=armed] .cue .t-hover{display:none}
-.booth[data-state=armed] .cue .t-arm{display:inline}
-.flash{position:absolute;inset:0;background:var(--dd-cream-50);opacity:0;pointer-events:none;z-index:20}
+/* countdown: ring tightens over 2s (focus), glow intensifies; .is-easing springs it back on cancel or after the snap */
+.booth.is-counting .cam #dd-ring{animation:none;transform:scale(.52);filter:drop-shadow(0 0 4px var(--dd-cream-50)) drop-shadow(0 0 14px var(--dd-cream-50)) drop-shadow(0 0 40px var(--dd-rust-300));transition:transform 2s cubic-bezier(.45,.05,.3,1),filter 2s ease-in}
+.booth.is-easing .cam #dd-ring{animation:none;transform:scale(1);transition:transform 600ms cubic-bezier(.2,.7,.2,1),filter 600ms ease-out}
+/* soft, local flash: a low-opacity cream glow centred on the camera ring (position set by JS), clipped by .hero */
+.flash{position:absolute;inset:-12%;--fx:22%;--fy:58%;--fr:320px;background:radial-gradient(circle var(--fr) at var(--fx) var(--fy),rgb(245 238 232 / 1) 0,rgb(245 238 232 / .55) 35%,rgb(245 238 232 / 0) 100%);opacity:0;pointer-events:none;z-index:8}
 
 .pol{position:absolute;right:2%;bottom:0;width:44%;background:var(--dd-cream-50);padding:14px 14px 0;border-radius:4px;box-shadow:0 18px 40px rgb(47 40 37 / .45);z-index:6;
   transform:rotate(-4deg);transform-origin:50% 60%}
@@ -149,7 +151,7 @@ body.menu-open{overflow:hidden}
 .again{position:absolute;right:6%;bottom:-11%;color:var(--dd-cream);font:300 var(--dd-fs-script-s)/1.4 var(--dd-font-script);background:none;border:0;border-bottom:1px solid var(--dd-cream);cursor:pointer;padding:0 2px 2px;z-index:7;transition:opacity 200ms}
 .again:hover{border-bottom:2px solid var(--dd-rust-300)}
 /* live print states */
-.booth[data-state=idle] .pol--live,.booth[data-state=armed] .pol--live,.booth[data-state=shutter] .pol--live{opacity:0;visibility:hidden;transform:translate(-40%,-30%) rotate(0) scale(.5)}
+.booth[data-state=idle] .pol--live,.booth[data-state=shutter] .pol--live{opacity:0;visibility:hidden;transform:translate(-40%,-30%) rotate(0) scale(.5)}
 .booth:not([data-state=done]) .again{opacity:0;visibility:hidden;pointer-events:none}
 .booth[data-state=developing] .pol--live{transition:transform 600ms cubic-bezier(.34,1.3,.64,1),opacity 200ms,visibility 0s}
 .booth[data-state=developing] .pol--live .pol__img img{animation:dev 3.2s cubic-bezier(.25,.1,.25,1) 600ms both}
@@ -312,8 +314,9 @@ body.menu-open{overflow:hidden}
   .ftr__legal{flex-direction:column;text-align:center}
   .concept-bar{font-size:10px;letter-spacing:.12em}
 }
-.is-touch .cue .t-hover,.is-touch[data-state=armed] .cue .t-hover{display:none}.is-touch .cue .t-touch{display:inline}
-@media (hover:none){.cue .t-hover,.booth[data-state=armed] .cue .t-hover{display:none}.cue .t-touch{display:inline}.booth[data-state=armed] .cue .t-arm{display:none}}
+.is-touch .cue .t-hover{display:none}.is-touch .cue .t-touch{display:inline}
+@media (hover:none){.cue .t-hover{display:none}.cue .t-touch{display:inline}}
+.booth.is-counting .cue .t-hover,.booth.is-counting .cue .t-touch{display:none}.booth.is-counting .cue .t-arm{display:inline}
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   .ticker__track,.cam #dd-ring,.cue .dot{animation:none}
@@ -324,7 +327,7 @@ body.menu-open{overflow:hidden}
   .ticker__group i:last-child{display:none}
   .booth .pol{transition:opacity 200ms linear,visibility 0s!important;transform:rotate(-4deg)!important}
   .booth[data-state=developing] .pol__img img,.booth[data-state=developing] .pol__dark,.booth[data-state=developing] .pol__cap{animation:none}
-  .booth[data-state=armed] .cue .t-hover{display:inline}.booth[data-state=armed] .cue .t-arm{display:none}
+  .booth.is-counting .cam #dd-ring,.booth.is-easing .cam #dd-ring{transform:none;transition:none}
   .vf__blade,.flash{display:none}
   .btn,.stile img{transition:none}
   .btn:hover{transform:none}

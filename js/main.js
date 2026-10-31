@@ -9,11 +9,13 @@
     var cam = booth.querySelector('.cam');
     var again = booth.querySelector('.again');
     var live = document.getElementById('live');
-    var flash = document.querySelector('.hero .flash');
+    var flash = booth.querySelector('.flash');
     var pol = booth.querySelector('.pol--live');
     var cap = pol.querySelector('.pol__cap');
     var caps = ['looking like our dream client', "your feed's new glow up", 'okay, frame that one'];
-    var n = 0, last = -Infinity, busy = false, dwell = null, timers = [];
+    var COUNTDOWN = 2000; // ring tightens for 2s, then snap
+    var n = 0, last = -Infinity, busy = false, timers = [];
+    var counting = false, cdSource = null, cdTimer = null, easeTimer = null, lastPtr = 'mouse';
 
     // touch devices: show "tap to snap" (also flips on the first touch, for hybrid laptops/tablets)
     if (window.matchMedia('(hover: none)').matches) booth.classList.add('is-touch');
@@ -44,7 +46,6 @@
       var now = performance.now();
       if (busy || now - last < 1500) return;
       last = now; busy = true;
-      clearTimeout(dwell);
       live.textContent = '';
       var wasDone = !pol.hidden && booth.dataset.state === 'done' && n > 0;
       var text = caps[n++ % caps.length];
@@ -66,31 +67,79 @@
       if (wasDone) pileUp();
       booth.dataset.state = 'shutter';
       cap.textContent = text;
-      if (flash && flash.animate) {
-        flash.animate([{ opacity: 0 }, { opacity: .9, offset: .23 }, { opacity: 0 }], { duration: 260, easing: 'ease-out' });
-      }
+      softFlash();
       later(function () { booth.dataset.state = 'developing'; }, 300);
       later(function () { live.textContent = 'Photo taken'; }, 900);
       later(function () { booth.dataset.state = 'done'; busy = false; }, 4100);
     }
 
+    function softFlash() {
+      // a brief cream glow centred on the camera ring: peak .3 opacity, 360ms, never full-screen
+      if (!flash || !flash.animate) return;
+      var fb = flash.getBoundingClientRect(), cb = cam.getBoundingClientRect();
+      flash.style.setProperty('--fx', (cb.left + cb.width / 2 - fb.left) + 'px');
+      flash.style.setProperty('--fy', (cb.top + cb.height * (190 / 470) - fb.top) + 'px'); // ring centre in the 360x470 camera art
+      flash.style.setProperty('--fr', Math.round(cb.width * 1.6) + 'px');
+      flash.animate([{ opacity: 0 }, { opacity: .3, offset: .3 }, { opacity: 0 }], { duration: 360, easing: 'ease-out' });
+    }
+
+    function easeBack() {
+      booth.classList.remove('is-counting');
+      booth.classList.add('is-easing');
+      clearTimeout(easeTimer);
+      easeTimer = setTimeout(function () { booth.classList.remove('is-easing'); }, 620);
+    }
+
+    function startCountdown(source) {
+      if (counting || busy || performance.now() - last < 1500) return; // no retrigger mid-countdown or mid-snap
+      counting = true; cdSource = source;
+      clearTimeout(easeTimer);
+      // stop the breathing loop first and commit that style, otherwise Chrome skips the transition
+      // on a property that a CSS animation was driving and the ring would jump straight to small
+      booth.classList.add('is-easing');
+      void cam.querySelector('#dd-ring').getBoundingClientRect();
+      booth.classList.remove('is-easing');
+      booth.classList.add('is-counting');
+      cdTimer = setTimeout(function () {
+        counting = false; cdSource = null;
+        easeBack();
+        snap();
+      }, COUNTDOWN);
+    }
+
+    function cancelCountdown() {
+      if (!counting) return;
+      clearTimeout(cdTimer);
+      counting = false; cdSource = null;
+      easeBack(); // ring eases back to full size, no snap
+    }
+
+    cam.addEventListener('pointerdown', function (e) { lastPtr = e.pointerType || 'mouse'; });
     cam.addEventListener('pointerenter', function (e) {
-      if (e.pointerType !== 'mouse') return;
-      if (booth.dataset.state === 'idle' || booth.dataset.state === 'done') {
-        if (!busy && booth.dataset.state === 'idle') booth.dataset.state = 'armed';
-        clearTimeout(dwell);
-        dwell = setTimeout(snap, 400);
+      if (e.pointerType === 'mouse') startCountdown('hover');
+    });
+    cam.addEventListener('pointerleave', function (e) {
+      if (e.pointerType === 'mouse' && (cdSource === 'hover' || cdSource === 'click')) cancelCountdown();
+    });
+    // tap, mouse click, Enter and Space all fire click on the native <button>
+    cam.addEventListener('click', function (e) {
+      var src = e.detail === 0 ? 'key' : (lastPtr === 'mouse' ? 'click' : 'tap');
+      if (counting) {
+        if (cdSource === 'hover' && src === 'click') return; // clicking while the hover countdown runs just lets it finish
+        cancelCountdown(); // second tap / second key press cancels
+        return;
       }
+      startCountdown(src);
     });
-    cam.addEventListener('pointerleave', function () {
-      clearTimeout(dwell);
-      if (booth.dataset.state === 'armed') booth.dataset.state = 'idle';
+    // a tap or click anywhere else cancels; so does moving keyboard focus away
+    document.addEventListener('pointerdown', function (e) {
+      if (counting && !cam.contains(e.target)) cancelCountdown();
     });
-    cam.addEventListener('click', snap); // tap, Enter and Space all fire click on a native <button>
+    cam.addEventListener('blur', function () { if (counting && cdSource === 'key') cancelCountdown(); });
     again.addEventListener('click', function (e) {
       last = -Infinity;
-      snap();
       if (e.detail === 0) cam.focus(); // keyboard activation: return focus to the camera
+      startCountdown(e.detail === 0 ? 'key' : 'tap');
     });
   }
 

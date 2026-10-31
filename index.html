@@ -40,7 +40,6 @@
 
 <main id="main">
 <section class="hero dark" aria-labelledby="hero-h">
-  <div class="flash" aria-hidden="true"></div>
   <div class="wrap hero__grid">
     <div class="hero__copy">
       <p class="hero__eyebrow caps"><span class="dot"></span>Accepting new clients · Limited spots</p>
@@ -52,6 +51,7 @@
     </div>
     <div class="hero__booth">
       <div class="booth" data-state="done" id="booth">
+        <div class="flash" aria-hidden="true"></div>
         <div class="vf" aria-hidden="true">
           <picture><source srcset="assets/img/hero-photo-booth-scene-800w.webp 800w, assets/img/hero-photo-booth-scene.webp 1280w" type="image/webp" sizes="(max-width:900px) 100vw, 620px">
           <img src="assets/img/hero-photo-booth-scene-800w.jpg" srcset="assets/img/hero-photo-booth-scene-800w.jpg 800w, assets/img/hero-photo-booth-scene.jpg 1280w" sizes="(max-width:900px) 100vw, 620px" alt="" width="1280" height="720" fetchpriority="high"></picture>
@@ -72,13 +72,14 @@
   <rect x="30" y="70" width="300" height="34" rx="18" fill="#594E49" opacity=".55"/>
   <rect id="dd-flash" x="50" y="84" width="48" height="26" rx="6" fill="#594E49" stroke="#D6C9BE" stroke-opacity=".6" stroke-width="1.5"/>
   <rect x="262" y="88" width="46" height="8" rx="4" fill="#594E49"/>
-  <circle id="dd-ring" cx="180" cy="190" r="90" fill="none" stroke="#F5EEE8" stroke-width="12"/>
   <circle cx="180" cy="190" r="70" fill="#594E49"/>
   <circle cx="180" cy="190" r="58" fill="#2F2825"/>
   <circle cx="180" cy="190" r="42" fill="#3F3531" stroke="#D6C9BE" stroke-opacity=".5" stroke-width="1.5"/>
   <circle cx="180" cy="190" r="24" fill="#2F2825"/>
   <ellipse cx="165" cy="172" rx="10" ry="6" fill="#F5EEE8" opacity=".85" transform="rotate(-30 165 172)"/>
   <circle cx="196" cy="206" r="3.5" fill="#F5EEE8" opacity=".5"/>
+
+  <circle id="dd-ring" cx="180" cy="190" r="90" fill="none" stroke="#F5EEE8" stroke-width="12"/>
 </svg></button>
         <p class="cue" id="cue"><span class="dot"></span><span class="script-s t-hover">smile! hover to snap</span><span class="script-s t-touch">tap to snap</span><span class="script-s t-arm">hold still…</span></p>
         <figure class="pol pol--live">
