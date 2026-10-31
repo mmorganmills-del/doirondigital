@@ -73,11 +73,11 @@ section{position:relative}
 .hdr nav a{text-decoration:none;color:var(--dd-cream)}
 .hdr nav a:hover{text-decoration:underline;text-decoration-color:var(--dd-rust-300);text-decoration-thickness:2px;text-underline-offset:6px}
 .hdr__logo img{width:220px;height:auto}
-/* header socials: 25px icons (was 20) in 44x44 tap targets; gap 9px = 28px visible (was 20); -9.5px right margin keeps the last visible icon flush with the content edge */
-.hdr__social{display:flex;gap:9px;justify-content:flex-end;margin-right:-9.5px}
+/* header socials: 31px icons in 44x44 tap targets; gap 21px = 34px visible; -6.5px right margin (-(44-31)/2) keeps the last visible icon flush with the content edge */
+.hdr__social{display:flex;gap:21px;justify-content:flex-end;margin-right:-6.5px}
 .icon{width:20px;height:20px;display:inline-block;vertical-align:middle}
 .hdr__social a{color:var(--dd-cream);display:inline-grid;place-items:center;width:44px;height:44px}
-.hdr__social .icon{width:25px;height:25px}
+.hdr__social .icon{width:31px;height:31px}
 .sheet__social a{color:var(--dd-cream);display:inline-grid;place-items:center;width:44px;height:44px}
 .hdr__social a:hover,.ftr__social a:hover{color:var(--dd-rust-300)}
 .hdr__menu{display:none;background:none;border:1.5px solid rgb(235 221 209 / .35);color:var(--dd-cream);border-radius:12px;width:48px;height:48px;place-items:center;cursor:pointer}
