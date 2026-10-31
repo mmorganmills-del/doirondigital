@@ -176,10 +176,11 @@ body.menu-open{overflow:hidden}
 .services .script-m{color:var(--dd-rust);transform:rotate(-6deg);display:inline-block;margin-top:12px}
 .services__intro{max-width:46ch}
 .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:48px}
-.arch{position:relative;border-radius:999px 999px 0 0;overflow:hidden;aspect-ratio:3/4;background:var(--dd-cream-300)}
-.arch img{width:100%;height:100%;object-fit:cover}
+/* photo frames: perfect circles (formerly arches); the class name is kept so the markup stays the same */
+.arch{position:relative;border-radius:50%;overflow:hidden;aspect-ratio:1;background:var(--dd-cream-300)}
+.arch img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .arch-wrap{position:relative;padding:8px}
-.arch-wrap::before{content:"";position:absolute;inset:0;border:2px solid var(--dd-espresso);border-radius:999px 999px 0 0;border-bottom:0}
+.arch-wrap::before{content:"";position:absolute;inset:0;border:2px solid var(--dd-espresso);border-radius:50%}
 .card .script-s{color:var(--dd-rust);text-align:center;margin:18px 0 8px}
 .card p{text-align:center;max-width:32ch;margin:0 auto}
 .center{text-align:center;margin-top:56px}
@@ -212,7 +213,10 @@ body.menu-open{overflow:hidden}
 .yo .script-s{color:var(--dd-rust)}
 .team__photo{position:relative}
 .team__photo .script-m{position:absolute;left:-28px;top:-8px;z-index:2;color:var(--dd-espresso);transform:rotate(-12deg);font-size:clamp(1.6rem,1.2rem + 1.2vw,2.4rem)}
-.team__photo .arch{aspect-ratio:656/600}
+/* team circle: a cover crop can't hold all 5 faces (the front-right face sits at the photo's bottom-right corner),
+   so the photo is shown at 92% of the circle's height, top-aligned, and its bottom edge fades softly into cream */
+.team__photo .arch{background:var(--dd-cream)}
+.team__photo .arch img{position:absolute;top:0;left:-2.4%;width:109.3%;height:92%;max-width:none;border-radius:0;object-fit:cover;-webkit-mask-image:linear-gradient(to bottom,#000 84%,transparent 100%);mask-image:linear-gradient(to bottom,#000 84%,transparent 100%)}
 
 /* socials */
 .socials{padding:var(--dd-section-y) 0 48px}
