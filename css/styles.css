@@ -78,12 +78,16 @@ section{position:relative}
 .sheet__social a{color:var(--dd-cream);display:inline-grid;place-items:center;min-width:44px;min-height:44px}
 .hdr__social a:hover,.ftr__social a:hover{color:var(--dd-rust-300)}
 .hdr__menu{display:none;background:none;border:1.5px solid rgb(235 221 209 / .35);color:var(--dd-cream);border-radius:12px;width:48px;height:48px;place-items:center;cursor:pointer}
-.ticker{overflow:hidden;transform:rotate(-1.5deg);margin:8px -20px 0;padding:14px 0;border-top:1px solid rgb(235 221 209 / .18);border-bottom:1px solid rgb(235 221 209 / .18);background:var(--dd-espresso)}
-.ticker__track{display:flex;gap:28px;white-space:nowrap;width:max-content;animation:tick 40s linear infinite}
-.ticker:hover .ticker__track{animation-play-state:paused}
-.ticker__track span{display:inline-flex;gap:28px;align-items:center}
-.ticker__track i{color:var(--dd-rust-300);font-style:normal}
-@keyframes tick{to{transform:translateX(-50%)}}
+/* ticker band: borders run edge to edge (band is wider than the viewport, clipped by .hdr); only the inner mask fades */
+.ticker{--tk-bleed:4vw;--tk-fade:clamp(48px,8vw,140px);overflow:hidden;transform:rotate(-1.5deg);width:calc(100% + 2*var(--tk-bleed));margin:8px calc(-1*var(--tk-bleed)) 0;padding:14px 0;border-top:1px solid rgb(235 221 209 / .18);border-bottom:1px solid rgb(235 221 209 / .18);background:var(--dd-espresso)}
+.ticker__mask{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent var(--tk-bleed),#000 calc(var(--tk-bleed) + var(--tk-fade)),#000 calc(100% - var(--tk-bleed) - var(--tk-fade)),transparent calc(100% - var(--tk-bleed)));mask-image:linear-gradient(90deg,transparent var(--tk-bleed),#000 calc(var(--tk-bleed) + var(--tk-fade)),#000 calc(100% - var(--tk-bleed) - var(--tk-fade)),transparent calc(100% - var(--tk-bleed)))}
+.ticker__track{display:flex;width:max-content;white-space:nowrap;animation:tick 56s linear infinite;will-change:transform}
+/* each half carries its own trailing gap (padding-right = gap), so both halves are identical and -50% lands exactly on the seam */
+.ticker__group{display:flex;flex:none;align-items:center;gap:32px;padding-right:32px}
+.ticker__group .t-caps{letter-spacing:.24em}
+.ticker__group .t-script{font:300 1.25rem/1 var(--dd-font-script);letter-spacing:0;text-transform:none;color:var(--dd-cream);transform:translateY(-1px)}
+.ticker__group i{color:var(--dd-rust-300);font-style:normal;font-size:.95em}
+@keyframes tick{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
 
 /* mobile menu sheet */
 .sheet{position:fixed;inset:0;z-index:60;background:var(--dd-espresso);color:var(--dd-cream);display:flex;flex-direction:column;padding:20px 24px 40px;overflow-y:auto}
@@ -313,6 +317,11 @@ body.menu-open{overflow:hidden}
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   .ticker__track,.cam #dd-ring,.cue .dot{animation:none}
+  .ticker__mask{-webkit-mask-image:none;mask-image:none}
+  .ticker__track{width:auto;white-space:normal;justify-content:center;padding:0 calc(var(--tk-bleed) + 24px)}
+  .ticker__group{flex:1 1 auto;flex-wrap:wrap;justify-content:center;row-gap:8px;column-gap:20px;padding-right:0;max-width:1200px}
+  .ticker__group[aria-hidden]{display:none}
+  .ticker__group i:last-child{display:none}
   .booth .pol{transition:opacity 200ms linear,visibility 0s!important;transform:rotate(-4deg)!important}
   .booth[data-state=developing] .pol__img img,.booth[data-state=developing] .pol__dark,.booth[data-state=developing] .pol__cap{animation:none}
   .booth[data-state=armed] .cue .t-hover{display:inline}.booth[data-state=armed] .cue .t-arm{display:none}
