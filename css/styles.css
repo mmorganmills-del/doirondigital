@@ -85,7 +85,6 @@ section{position:relative}
 /* each half carries its own trailing gap (padding-right = gap), so both halves are identical and -50% lands exactly on the seam */
 .ticker__group{display:flex;flex:none;align-items:center;gap:32px;padding-right:32px}
 .ticker__group .t-caps{letter-spacing:.24em}
-.ticker__group .t-script{font:300 1.25rem/1 var(--dd-font-script);letter-spacing:0;text-transform:none;color:var(--dd-cream);transform:translateY(-1px)}
 .ticker__group i{color:var(--dd-rust-300);font-style:normal;font-size:.95em}
 @keyframes tick{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
 
